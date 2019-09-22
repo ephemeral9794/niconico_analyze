@@ -1,20 +1,20 @@
 package com.github.ephemeral9794.niconico.accessor
 
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.result.*
+import com.github.ephemeral9794.niconico.Util
+import io.ktor.client.request.get
+import kotlinx.coroutines.runBlocking
+
 
 class NicoDMCAccessor {
-    private val DOMAIN = ""
+    private val scheme = "https"
+    private val host = ""
+    private val port = 443
 
     fun connect() {
-        val (req, res, result) = Fuel.get(DOMAIN).responseString()
-        when (result) {
-            is Result.Success -> {
-
-            }
-            is Result.Failure -> {
-
-            }
+        val client = Util.Client
+        val response = runBlocking {
+            client.get<String>(scheme = scheme, host = host, port = port)
         }
+        println(response)
     }
 }

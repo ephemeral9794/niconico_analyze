@@ -1,2 +1,4 @@
 JetBrains.gitignore
 /build
+
+account.json
