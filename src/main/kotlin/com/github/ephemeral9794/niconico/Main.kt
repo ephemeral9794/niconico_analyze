@@ -1,24 +1,34 @@
 package com.github.ephemeral9794.niconico
 
+import com.eclipsesource.json.Json
 import com.github.ephemeral9794.niconico.accessor.NiconicoContext
 import com.github.ephemeral9794.niconico.accessor.NiconicoCrawler
-import org.json.JSONObject
+import com.github.ephemeral9794.niconico.entity.DmcSessionRequest
+import com.github.ephemeral9794.niconico.entity.NicoWatchData
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+
 import java.nio.file.Files
 import java.nio.file.Paths
 
 fun main(args: Array<String>) {
-    val account = JSONObject(Files.readString(Paths.get("account.json")))
-    val context = NiconicoContext(account.getString("mail"), account.getString("password"))
+    val account = Json.parse(Files.readString(Paths.get("account.json"))).asObject()
+    val context = NiconicoContext(account.getString("mail", ""), account.getString("password", ""))
     val status = context.signIn()
-    //println("${status}, ${context.Authority}")
+    println("${status}, ${context.Authority}")
 
-    /*val res = NiconicoCrawler.get("1567052343")
-    val json = Util.escapeUnicode(res)
-    println(json)
+    val (data, env) = NiconicoCrawler.get("1567052343", context.Cookie)
+    val watchData = escapeUnicode(data)
+	val environment = escapeUnicode(env)
+	Files.writeString(Paths.get("./data-api-data.json"), watchData)
+	Files.writeString(Paths.get("./data-environment.json"), environment)
 
-    val obj = JSONObject(json)
-    val dmcInfo = obj.getJSONObject("video").getJSONObject("dmcInfo")
-    println(dmcInfo)*/
+	val moshi = Moshi.Builder()
+		.add(KotlinJsonAdapterFactory())
+		.build()
+	val json = moshi.adapter(NicoWatchData::class.java).fromJson(watchData)
+	println(json)
 
     context.signOut()
 }
